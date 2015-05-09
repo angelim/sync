@@ -16,7 +16,11 @@ module Sync
         before_update  :prepare_sync_actions, if: -> { Sync::Model.enabled? }
         before_destroy :prepare_sync_actions, if: -> { Sync::Model.enabled? }
         
-        after_commit   :publish_sync_actions, if: -> { Sync::Model.enabled? }
+        if defined?(ActiveRecord)
+          after_commit   :publish_sync_actions, if: -> { Sync::Model.enabled? }
+        elsif defined?(Mongoid)
+          after_save      :publish_sync_actions, if: -> { Sync::Model.enabled? }
+        end
       end
     end
     
