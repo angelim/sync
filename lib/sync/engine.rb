@@ -7,8 +7,12 @@ module Sync
       Sync.load_config(path, Rails.env) if path.exist?
     end
 
-    initializer "sync.activerecord" do
-      ActiveRecord::Base.send :extend, Model::ClassMethods
+    initializer "sync.orm" do
+      if defined?(ActiveRecord)
+        ActiveRecord::Base.send :extend, Model::ClassMethods
+      elsif defined?(Mongoid)
+        Mongoid::Document.send :extend, Model::ClassMethods
+      end
     end
 
     # Adds the ViewHelpers into ActionView::Base
