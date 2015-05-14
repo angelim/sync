@@ -15,7 +15,8 @@ module Sync
       end
 
       # Classes currently supported as Arguments for the sync scope lambda
-      supported_arg_types = [Fixnum, Integer, ActiveRecord::Base]
+      orm_klass = defined?(ActiveRecord) ? ActiveRecord::Base : Mongoid::Document
+      supported_arg_types = [Fixnum, Integer, String, orm_klass]
 
       # Check passed args for types. Raise ArgumentError if arg class is not supported
       args.each_with_index do |arg, i|
@@ -77,7 +78,8 @@ module Sync
     #
     def args_path
       scope_definition.parameters.each_with_index.map do |parameter, i| 
-        if args[i].is_a? ActiveRecord::Base
+        orm_klass = defined?(ActiveRecord) ? ActiveRecord::Base : Mongoid::Document
+        if args[i].is_a? orm_klass
           [parameter.to_s, args[i].send(args[i].class.primary_key).to_s]
         else
           [parameter.to_s, args[i].to_s] 
